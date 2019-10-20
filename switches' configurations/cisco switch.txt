@@ -1,0 +1,84 @@
+hostname Switch
+!
+enable password class
+!
+username ansible privilege 15 secret 5 $1$kxbE$K7muIne6BABHgzSJtPGrR.
+!
+no ip domain-lookup
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+ip ssh version 2
+!
+interface FastEthernet0/2
+ switchport access vlan 99
+ switchport mode access
+!
+interface FastEthernet0/3
+ switchport access vlan 99
+ switchport mode trunk
+!
+interface FastEthernet0/4
+ switchport access vlan 99
+ switchport mode access
+!
+interface FastEthernet0/13
+ switchport access vlan 99
+ switchport mode access
+!
+interface FastEthernet0/15
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface FastEthernet0/17
+ switchport mode trunk
+!
+interface FastEthernet0/19
+ switchport mode trunk
+!
+interface FastEthernet0/33
+ switchport access vlan 99
+ switchport mode access
+!
+interface FastEthernet0/35
+ switchport access vlan 99
+ switchport mode access
+!
+interface FastEthernet0/41
+ switchport access vlan 99
+ switchport mode access
+!
+interface FastEthernet0/42
+ switchport mode trunk
+!
+interface FastEthernet0/43
+ switchport mode trunk
+!
+interface FastEthernet0/44
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface FastEthernet0/45
+ switchport mode trunk
+!
+interface FastEthernet0/47
+ switchport mode trunk
+!
+interface Vlan99
+ ip address 10.10.10.99 255.255.255.0
+!
+ip default-gateway 10.10.10.1
+!
+line con 0
+ logging synchronous
+line vty 0 4
+ password cisco
+ login local
+line vty 5 15
+ password cisco
+ login local
+!
+end
