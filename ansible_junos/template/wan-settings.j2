@@ -1,0 +1,51 @@
+interfaces {
+    fe-1/3/0 {
+        vlan-tagging;
+    {% for unit in units %}
+    unit {{ unit.num }} {
+            vlan-id {{ unit.vlan }};
+            family inet {
+                address 192.168.{{ unit.vlan }}.1/24;
+            }
+        }
+    {% endfor %}}
+    fe-1/3/1 {
+        vlan-tagging;
+    {% for unit in units %}
+    unit {{ unit.number }} {
+            vlan-id {{ unit.vlan_wan }};
+            family inet {
+                address {{ unit.address }}/24;
+            }
+        }
+    {% endfor %}}
+{% for unit in units %}
+    ds-0/0/0:{{ unit.number }} {
+        unit 0 {
+            family inet {
+                address 192.168.99.{{ juniper }}/24;
+            }
+        }
+    }{% endfor %}
+}
+routing-instances {
+    {% for unit in units %}
+    {{ unit.number }} {
+        interface fe-1/3/1.{{ unit.number }};
+        routing-options {
+            static {
+              route 192.168.{{ unit.vlan_neighbor }}.0/24 next-hop 192.168.99.{{ next }};
+            }
+            router-id {{ unit.router_id }};
+        }
+        protocols {
+            ospf {
+                area {{ unit.area }} {
+                    interface ds-0/0/0:{{ unit.number }}.0;
+                    interface fe-1/3/0.{{ unit.num }};
+                    interface fe-1/3/1.{{ unit.number }};
+                }
+            }
+        }
+    }{% endfor %}	
+}

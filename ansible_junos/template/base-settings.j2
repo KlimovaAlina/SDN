@@ -1,0 +1,10 @@
+system {
+    login {
+        user ansible {
+            class super-user;
+            authentication {
+                ssh-rsa "{{ rsa_pubkey }}"
+            }
+        }
+    }
+}

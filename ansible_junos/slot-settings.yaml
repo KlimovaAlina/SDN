@@ -1,0 +1,60 @@
+
+---
+- name: Generate and Install Configuration File
+  hosts:
+    - junipers
+  roles:
+    - juniper.junos
+  connection: local
+  gather_facts: no
+
+  vars:
+    tmp_dir: "tmp"
+    conf_file: "{{ tmp_dir}}/{{ inventory_hostname }}.conf"
+    connection_settings:
+          host: "{{ ansible_host }}"
+          user: ansible
+          port: 22
+          timeout: 120
+
+  tasks:
+    - name: confirm or create configs directory
+      file:
+        path: "{{ tmp_dir }}"
+        state: directory
+      run_once: yes
+
+    - name: save device information using template
+      template:
+        src: template/slot-settings.j2
+        dest: "{{ conf_file }}"
+
+    - name: install generated configuration file onto device
+      juniper_junos_config:
+        provider: "{{ connection_settings }}"
+        src: "{{ conf_file }}"
+        format: text
+        load: replace
+        comment: "playbook slot-settings.yaml, commit confirmed"
+        confirmed: 5
+        diff: yes
+        dest_dir: "{{ tmp_dir }}"
+      register: config_results
+      notify: confirm previous commit
+
+    - debug:
+        var: config_results.diff_lines
+      when: config_results.diff_lines is defined
+
+    - name: delete generated configuration file
+      file:
+        path: "{{ conf_file }}"
+        state: absent
+
+  handlers:
+    - name: confirm previous commit
+      juniper_junos_config:
+        provider: "{{ connection_settings }}"
+        comment: "playbook slot-settings.yaml, confirming previous commit"
+        commit: yes
+        diff: no

@@ -1,0 +1,20 @@
+---
+juniper: 2
+next: 1
+units:
+  - number: 1
+    num: 0
+    area: 1.1.1.1
+    vlan: 12
+    vlan_wan: 13
+    vlan_neighbor: 11
+    address: 172.16.1.2
+    router_id: 2.2.2.1
+  - number: 2
+    num: 1
+    area: 2.2.2.2
+    vlan: 22
+    vlan_wan: 23
+    vlan_neighbor: 21
+    address: 172.16.2.2
+    router_id: 2.2.2.2
