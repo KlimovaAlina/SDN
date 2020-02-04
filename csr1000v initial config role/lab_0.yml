@@ -1,6 +1,6 @@
 ---
 - name: Init csr1000v config
-  hosts: csr1000v
+  hosts: all
   gather_facts: false
   connection: local
   roles: csr1000v-role
