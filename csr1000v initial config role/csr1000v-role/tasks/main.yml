@@ -1,0 +1,14 @@
+---
+- name: Deploy csr1000v OVA
+  vmware_deploy_ovf:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    ovf: /path/to/csr1000v.ovf
+    wait_for_ip_address: true
+  when: inventory_hostname == 'vmware'
+  delegate_to: localhost  
+
+- name: Configure csr1000v
+  
+  when: inventory_hostname == 'csr1000v'

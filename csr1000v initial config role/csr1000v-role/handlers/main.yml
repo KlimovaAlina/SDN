@@ -1,0 +1,7 @@
+handlers:
+    - name: confirm previous commit
+      juniper_junos_config:
+        provider: "{{ connection_settings }}"
+        comment: "confirming previous commit"
+        commit: yes
+        diff: no

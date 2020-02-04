@@ -1,0 +1,261 @@
+system {
+    host-name M7i-1;
+    root-authentication {
+        encrypted-password "$1$tuzvvgzZ$D4/zTPmfsG787thJ8K11T."; ## SECRET-DATA
+    }
+    login {
+        user admin {
+            uid 2000;
+            class superuser;
+            authentication {
+                encrypted-password "$1$L4Q21jFb$KD1Y/AjcAVwqwg/3tlOzf1"; ## SECRET-DATA
+            }
+        }
+        user ansible {
+            uid 2003;
+            class super-user;
+            authentication {
+                ssh-rsa "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC9rcZlRmC/9YqD3zcX5vIawW+XgK6qdONjIG0bIZzWIzTAT8dbf5hXzuMHWihTBRNhm2z4fSuBLbNW/OC4Tqpztd15Ddk2KzIk1i8yZt3J+I1D33zMS9YUNDoWX7DJbBj3oOlxKS/5t4DJhh2J4ELXztQhYmq6RNMWOw6eEgo9VRmX0d0edBvxdRQuwo3A/ep51y7TvyuHZGNHih59ncMao3kbFUwX4BBxGZN3YxKLQ+MSScp3pBMMrB32Wx6Yuw+RokGKuzrMyN+RIQa391B6I+c1J9D218yoLs3OFZt4cSfMWwGHbRRSymWyE1wAj7zeot/8Ay1+YX/fUc7mmDTh ansible@ansible_awx"; ## SECRET-DATA
+            }
+        }
+        user netconf {
+            uid 2001;
+            class super-user;
+            authentication {
+                encrypted-password pass; ## SECRET-DATA
+            }
+        }
+    }
+    services {
+        ssh;
+        telnet;
+        xnm-clear-text;
+        netconf {
+            ssh {
+                port 830;
+            }
+        }
+        web-management {
+            http;
+        }
+    }
+}
+interfaces {
+    ce1-0/0/0 {
+        partition 1 timeslots 1-2 interface-type ds;
+        partition 2 timeslots 8-14 interface-type ds;
+    }
+    lsq-0/0/0 {
+        unit 0 {
+            family inet {
+                address 10.0.0.9/24;
+            }
+        }
+    }
+    ds-0/0/0:1 {
+        unit 0 {
+            family inet {
+                address 192.168.99.1/24;
+            }
+        }
+    }
+    ds-0/0/0:2 {
+        unit 0 {
+            family inet {
+                address 192.168.99.1/24;
+            }
+        }
+    }
+    ds-0/0/0:3 {
+        unit 0 {
+            family inet {
+                address 192.168.12.1/24;
+            }
+        }
+    }
+    ce1-0/0/8 {
+        partition 1 timeslots 1-2 interface-type ds;
+        partition 2 timeslots 3-4 interface-type ds;
+    }
+    ds-0/0/8:1 {
+        unit 0 {
+            family mlppp {
+                bundle lsq-0/0/0.0;
+            }
+        }
+    }
+    ds-0/0/8:2 {
+        unit 0 {
+            family mlppp {
+                bundle lsq-0/0/0.0;
+            }
+        }
+    }
+    fe-1/3/0 {
+        vlan-tagging;
+        speed 100m;
+        link-mode full-duplex;
+        unit 0 {
+            vlan-id 11;
+            family inet {
+                address 192.168.11.1/24;
+            }
+        }
+        unit 1 {
+            vlan-id 21;
+            family inet {
+                address 192.168.21.1/24;
+            }
+        }
+    }
+    fe-1/3/1 {
+        vlan-tagging;
+        unit 0 {
+            vlan-id 99;
+            family inet {
+                address 10.10.10.9/24;
+            }
+        }
+        unit 1 {
+            vlan-id 13;
+            family inet {
+                address 172.16.1.1/24;
+            }
+        }
+        unit 2 {
+            vlan-id 23;
+            family inet {
+                address 172.16.2.1/24;
+            }
+        }
+    }
+}
+routing-options {
+    static {
+        route 127.1.1.0/32 reject;
+    }
+}
+protocols {
+    rip {
+        message-size 255;
+    }
+}
+routing-instances {
+    1 {
+        instance-type vrf;
+        interface ds-0/0/0:1.0;
+        interface fe-1/3/0.0;
+        interface fe-1/3/1.1;
+        route-distinguisher 10.0.0.1:1;
+        vrf-target target:123456L:100;
+        routing-options {
+            static {
+                route 192.168.12.0/24 next-hop 192.168.99.2;
+            }
+            router-id 1.1.1.1;
+        }
+        protocols {
+            ospf {
+                area 1.1.1.1 {
+                    interface ds-0/0/0:1.0;
+                    interface fe-1/3/0.0;
+                    interface fe-1/3/1.1;
+                }
+            }
+        }
+    }
+    2 {
+        instance-type vrf;
+        interface ds-0/0/0:2.0;
+        interface fe-1/3/0.1;
+        interface fe-1/3/1.2;
+        route-distinguisher 10.0.0.1:2;
+        vrf-target target:123456L:100;
+        routing-options {
+            static {
+                route 192.168.22.0/24 next-hop 192.168.99.2;
+            }
+            router-id 1.1.1.2;
+        }
+        protocols {
+            ospf {
+                area 2.2.2.2 {
+                    interface ds-0/0/0:2.0;
+                    interface fe-1/3/0.1;
+                    interface fe-1/3/1.2;
+                }
+            }
+        }
+    }
+}
+
+set version 11.1R4.4
+set system host-name M7i-1
+set system root-authentication encrypted-password "$1$tuzvvgzZ$D4/zTPmfsG787thJ8K11T."
+set system login user admin uid 2000
+set system login user admin class superuser
+set system login user admin authentication encrypted-password "$1$L4Q21jFb$KD1Y/AjcAVwqwg/3tlOzf1"
+set system login user ansible uid 2003
+set system login user ansible class super-user
+set system login user ansible authentication ssh-rsa "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC9rcZlRmC/9YqD3zcX5vIawW+XgK6qdONjIG0bIZzWIzTAT8dbf5hXzuMHWihTBRNhm2z4fSuBLbNW/OC4Tqpztd15Ddk2KzIk1i8yZt3J+I1D33zMS9YUNDoWX7DJbBj3oOlxKS/5t4DJhh2J4ELXztQhYmq6RNMWOw6eEgo9VRmX0d0edBvxdRQuwo3A/ep51y7TvyuHZGNHih59ncMao3kbFUwX4BBxGZN3YxKLQ+MSScp3pBMMrB32Wx6Yuw+RokGKuzrMyN+RIQa391B6I+c1J9D218yoLs3OFZt4cSfMWwGHbRRSymWyE1wAj7zeot/8Ay1+YX/fUc7mmDTh ansible@ansible_awx"
+set system login user netconf uid 2001
+set system login user netconf class super-user
+set system login user netconf authentication encrypted-password pass
+set system services ssh
+set system services telnet
+set system services xnm-clear-text
+set system services netconf ssh port 830
+set system services web-management http
+set interfaces ce1-0/0/0 partition 1 timeslots 1-2
+set interfaces ce1-0/0/0 partition 1 interface-type ds
+set interfaces ce1-0/0/0 partition 2 timeslots 8-14
+set interfaces ce1-0/0/0 partition 2 interface-type ds
+set interfaces lsq-0/0/0 unit 0 family inet address 10.0.0.9/24
+set interfaces ds-0/0/0:1 unit 0 family inet address 192.168.99.1/24
+set interfaces ds-0/0/0:2 unit 0 family inet address 192.168.99.1/24
+set interfaces ds-0/0/0:3 unit 0 family inet address 192.168.12.1/24
+set interfaces ce1-0/0/8 partition 1 timeslots 1-2
+set interfaces ce1-0/0/8 partition 1 interface-type ds
+set interfaces ce1-0/0/8 partition 2 timeslots 3-4
+set interfaces ce1-0/0/8 partition 2 interface-type ds
+set interfaces ds-0/0/8:1 unit 0 family mlppp bundle lsq-0/0/0.0
+set interfaces ds-0/0/8:2 unit 0 family mlppp bundle lsq-0/0/0.0
+set interfaces fe-1/3/0 vlan-tagging
+set interfaces fe-1/3/0 speed 100m
+set interfaces fe-1/3/0 link-mode full-duplex
+set interfaces fe-1/3/0 unit 0 vlan-id 11
+set interfaces fe-1/3/0 unit 0 family inet address 192.168.11.1/24
+set interfaces fe-1/3/0 unit 1 vlan-id 21
+set interfaces fe-1/3/0 unit 1 family inet address 192.168.21.1/24
+set interfaces fe-1/3/1 vlan-tagging
+set interfaces fe-1/3/1 unit 0 vlan-id 99
+set interfaces fe-1/3/1 unit 0 family inet address 10.10.10.9/24
+set interfaces fe-1/3/1 unit 1 vlan-id 13
+set interfaces fe-1/3/1 unit 1 family inet address 172.16.1.1/24
+set interfaces fe-1/3/1 unit 2 vlan-id 23
+set interfaces fe-1/3/1 unit 2 family inet address 172.16.2.1/24
+set routing-options static route 127.1.1.0/32 reject
+set protocols rip message-size 255
+set routing-instances 1 instance-type vrf
+set routing-instances 1 interface ds-0/0/0:1.0
+set routing-instances 1 interface fe-1/3/0.0
+set routing-instances 1 interface fe-1/3/1.1
+set routing-instances 1 route-distinguisher 10.0.0.1:1
+set routing-instances 1 vrf-target target:123456L:100
+set routing-instances 1 routing-options static route 192.168.12.0/24 next-hop 192.168.99.2
+set routing-instances 1 routing-options router-id 1.1.1.1
+set routing-instances 1 protocols ospf area 1.1.1.1 interface ds-0/0/0:1.0
+set routing-instances 1 protocols ospf area 1.1.1.1 interface fe-1/3/0.0
+set routing-instances 1 protocols ospf area 1.1.1.1 interface fe-1/3/1.1
+set routing-instances 2 instance-type vrf
+set routing-instances 2 interface ds-0/0/0:2.0
+set routing-instances 2 interface fe-1/3/0.1
+set routing-instances 2 interface fe-1/3/1.2
+set routing-instances 2 route-distinguisher 10.0.0.1:2
+set routing-instances 2 vrf-target target:123456L:100
+set routing-instances 2 routing-options static route 192.168.22.0/24 next-hop 192.168.99.2
+set routing-instances 2 routing-options router-id 1.1.1.2
+set routing-instances 2 protocols ospf area 2.2.2.2 interface ds-0/0/0:2.0
+set routing-instances 2 protocols ospf area 2.2.2.2 interface fe-1/3/0.1
+set routing-instances 2 protocols ospf area 2.2.2.2 interface fe-1/3/1.2
+

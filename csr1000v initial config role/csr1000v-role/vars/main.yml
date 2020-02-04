@@ -1,0 +1,9 @@
+vars:
+    tmp_dir: "tmp"
+    conf_file: "{{ tmp_dir }}/{{ inventory_hostname }}.conf"
+    connection_settings:
+          host: "{{ ansible_host }}"
+          user: "{{ username }}"
+          passwd: "{{ password }}"
+          port: 22
+          timeout: 120
